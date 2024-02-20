@@ -83,7 +83,8 @@ function parseCSV(csv) {
                 // "Page end": parts[10].replace(/^"|"$/g, ''),
                 "DOI": parts[13].replace(/^"|"$/g, ''),
                 "Link": parts[14].replace(/^"|"$/g, ''),
-                "Abstract": parts[15].replace(/^"|"$/g, '')
+                "Abstract": parts[15].replace(/^"|"$/g, ''),
+                "Source": parts[19].replace(/^"|"$/g, '')
             };
             result.push(obj);
         }
