@@ -1,139 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Upload e Análise de Arquivo CSV</title>
-<style>
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgb(0,0,0);
-    background-color: rgba(0,0,0,0.4);
-  }
-  .modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-  }
-  .close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-  }
-  .close:hover,
-  .close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload e Análise de Arquivo CSV</title>
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0, 0, 0);
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+  </style>
 </head>
+
 <body>
-<h1>Upload e Análise de Arquivo CSV</h1>
-<input type="file" id="fileInput" accept=".csv">
-<div id="tableContainer"></div>
+  <h1>Upload e Análise de Arquivo CSV</h1>
+  <input type="file" id="fileInput" accept=".csv">
+  <button onclick="downloadCSV()">Download CSV</button>
+  <div id="tableContainer"></div>
 
-<div id="myModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <p id="modalAbstract"></p>
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p id="modalAbstract"></p>
+    </div>
   </div>
-</div>
 
-<script>
-document.getElementById('fileInput').addEventListener('change', function() {
-    var file = this.files[0];
-    var reader = new FileReader();
+  
 
-    reader.onload = function(event) {
+  <script>
+    let data;
+
+    document.getElementById('fileInput').addEventListener('change', function () {
+      var file = this.files[0];
+      var reader = new FileReader();
+
+      reader.onload = function (event) {
         var contents = event.target.result;
-        var data = parseCSV(contents);
+        data = parseCSV(contents);
         displayTable(data);
-    };
+      };
 
-    reader.readAsText(file);
-});
+      reader.readAsText(file);
+    });
 
-function parseCSV(csv) {
-    var lines = csv.split('\n');
-    var result = [];
+    function parseCSV(csv) {
+      var lines = csv.split('\n');
+      var result = [];
 
-    for (var i = 0; i < lines.length; i++) {
+      for (var i = 0; i < lines.length; i++) {
         var line = lines[i].trim();
         if (line) {
-            var parts = line.split('","');
-            var obj = {
-                "Authors": parts[0].replace(/^"|"$/g, ''),
-                "Title": parts[3].replace(/^"|"$/g, ''),
-                "Year": parts[4].replace(/^"|"$/g, ''),
-                "Source title": parts[5].replace(/^"|"$/g, ''),
-                // "Volume": parts[6].replace(/^"|"$/g, ''),
-                // "Issue": parts[7].replace(/^"|"$/g, ''),
-                // "Page start": parts[9].replace(/^"|"$/g, ''),
-                // "Page end": parts[10].replace(/^"|"$/g, ''),
-                "DOI": parts[13].replace(/^"|"$/g, ''),
-                "Link": parts[14].replace(/^"|"$/g, ''),
-                "Abstract": parts[15].replace(/^"|"$/g, ''),
-                "Source": parts[19].replace(/^"|"$/g, '')
-            };
-            result.push(obj);
+          var parts = line.split('","');
+          var obj = {
+            "Authors": parts[0].replace(/^"|"$/g, ''),
+            "Title": parts[3].replace(/^"|"$/g, ''),
+            "Year": parts[4].replace(/^"|"$/g, ''),
+            "Source title": parts[5].replace(/^"|"$/g, ''),
+            // "Volume": parts[6].replace(/^"|"$/g, ''),
+            // "Issue": parts[7].replace(/^"|"$/g, ''),
+            // "Page start": parts[9].replace(/^"|"$/g, ''),
+            // "Page end": parts[10].replace(/^"|"$/g, ''),
+            "DOI": parts[13].replace(/^"|"$/g, ''),
+            "Link": parts[14].replace(/^"|"$/g, ''),
+            "Abstract": parts[15].replace(/^"|"$/g, ''),
+            "Source": parts[19].replace(/^"|"$/g, '')
+          };
+          result.push(obj);
         }
+      }
+
+      return result;
     }
 
-    return result;
-}
+    function displayTable(data) {
+      var tableHtml = '<table border="1"><tr>';
 
-function displayTable(data) {
-    var tableHtml = '<table border="1"><tr>';
-
-    // Cria cabeçalhos da tabela
-    for (var key in data[0]) {
+      // Cria cabeçalhos da tabela
+      for (var key in data[0]) {
         tableHtml += '<th>' + key + '</th>';
-    }
+      }
 
-    tableHtml += '</tr>';
+      tableHtml += '</tr>';
 
-    // Adiciona dados à tabela
-    data.forEach(function(dataset, index) {
+      // Adiciona dados à tabela
+      data.forEach(function (dataset) {
         tableHtml += '<tr>';
 
         for (var key in dataset) {
+          if (key === 'Abstract') {
+            tableHtml += '<td><button onclick="openModal(this)">Mostrar Resumo</button></td>';
+          } else {
             tableHtml += '<td>' + dataset[key] + '</td>';
+          }
         }
 
         tableHtml += '</tr>';
-    });
+      });
 
-    tableHtml += '</table>';
+      tableHtml += '</table>';
 
-    document.getElementById('tableContainer').innerHTML = tableHtml;
-}
+      document.getElementById('tableContainer').innerHTML = tableHtml;
+    }
 
-function openModal(index) {
-    var modalAbstract = document.getElementById('modalAbstract');
-    modalAbstract.textContent = data[index].Abstract;
-    var modal = document.getElementById('myModal');
-    modal.style.display = 'block';
-    var span = document.getElementsByClassName('close')[0];
-    span.onclick = function() {
+    function openModal(button) {
+      var row = button.parentNode.parentNode;
+      var modalAbstract = row.querySelector('.modal-content #modalAbstract');
+      modalAbstract.textContent = button.parentNode.previousElementSibling.textContent;
+      var modal = document.getElementById('myModal');
+      modal.style.display = 'block';
+      var span = document.getElementsByClassName('close')[0];
+      span.onclick = function () {
         modal.style.display = 'none';
-    };
-    window.onclick = function(event) {
+      };
+      window.onclick = function (event) {
         if (event.target == modal) {
-            modal.style.display = 'none';
+          modal.style.display = 'none';
         }
-    };
-}
-</script>
+      };
+    }
+
+    function downloadCSV() {
+      var csvContent = "data:text/csv;charset=utf-8,";
+      var headers = Object.keys(data[0]).join(",");
+      csvContent += headers + "\r\n";
+
+      data.forEach(function (row) {
+        var values = Object.values(row).map(value => '"' + value + '"');
+        csvContent += values.join(",") + "\r\n";
+      });
+
+      var encodedUri = encodeURI(csvContent);
+      var link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "data.csv");
+      document.body.appendChild(link); // Required for FF
+
+      link.click(); // This will download the data file named "data.csv".
+    }
+
+  </script>
 </body>
+
 </html>
